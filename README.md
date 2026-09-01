@@ -1,4 +1,11 @@
-[![Build Status](https://travis-ci.org/MacPass/MacPass.svg?branch=continuous)](https://travis-ci.org/MacPass/MacPass)
+### macpassapp.org was dropped due to a fuck-up on my part.
+
+* The website is available under https://macpass.app
+* Until the issue is resolved please disable the automatic plugin update in the plugin settings to prevent any malicious activity.
+* MacPass will refuse to load unsigned or wrongly signed plugins if you uncheck the "load unsecure plugins"
+* If plugins get disabled due to a version downgrade in the bundled plugins.json file, check "load incompatible plugins". This setting does **not** enable unsigned plugins to be loaded!
+* Releases are **not**  published on the website or vie the https://macpassapp.org url.
+* Only use releases on the official [Github page](https://github.com/MacPass/MacPass/releases).
 
 # MacPass
 
