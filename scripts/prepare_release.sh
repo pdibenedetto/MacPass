@@ -11,8 +11,13 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -u|--username)
-    USERNAME="$2"
+    -a|--appleid)
+    APPLEID="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -t|--teamid)
+    TEAMID="$2"
     shift # past argument
     shift # past value
     ;;
@@ -43,8 +48,12 @@ if [[ -z "${ENTITLEMENTS}" ]]; then
     echo "Missing entitlements"
     exit -1
 fi
-if [[ -z "${USERNAME}" ]]; then
-    echo "Missing username"
+if [[ -z "${APPLEID}" ]]; then
+    echo "Missing Apple id"
+    exit -1
+fi
+if [[ -z "${TEAMID}" ]]; then
+    echo "Missing team id"
     exit -1
 fi
 if [[ -z "${PASSWORD}" ]]; then
@@ -70,25 +79,25 @@ xcodebuild build -configuration Release -project MacPass.xcodeproj -scheme MacPa
 cd "${BUILD_FOLDER}"
 echo ""
 echo "Signing Sparkle - fileop..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_FILEOP}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_FILEOP}"
 echo "Signing Sparkle - Autoupdate..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_AUTOUPDATE_BUNDLE}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_AUTOUPDATE_BUNDLE}"
 echo "Signing Sparkle..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_FRAMEWORK}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${SPARKLE_FRAMEWORK}"
 echo "Signing TransformerKit..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${TRANSFORMERKIT_FRAMEWORK}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${TRANSFORMERKIT_FRAMEWORK}"
 echo "Signing HNHUi..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${HNHUI_FRAMEWORK}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${HNHUI_FRAMEWORK}"
 echo "Signing KeePassKit - KissXML..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${KISSXML_FRAMEWORK}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${KISSXML_FRAMEWORK}"
 echo "Signing KeePassKit..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${KEEPASSKIT_FRAMEWORK}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${KEEPASSKIT_FRAMEWORK}"
 echo "Signing MacPass..."
-codesign --sign "${IDENTITY}" --options runtime --force --entitlements "${ENTITLEMENTS}" "${APP_BUNDLE}"
+codesign --sign "${IDENTITY}" --options runtime --timestamp --force --entitlements "${ENTITLEMENTS}" "${APP_BUNDLE}"
 echo ""
 echo "Archiving..."
 ditto -c -k --keepParent "${APP_BUNDLE}" "${APP_BUNDLE_ZIP}"
 echo "Requesting Notarization..."
-xcrun altool --notarize-app --primary-bundle-id "com.hicknhacksoftware.MacPass.zip" --username "${USERNAME}" --password "${PASSWORD}" --file "${APP_BUNDLE_ZIP}"
+xcrun notarytool submit "${APP_BUNDLE_ZIP}" --apple-id "${APPLEID}" --team-id "${TEAMID}" "${PASSWORD}" --password  --wait
 #xcrun stapler staple "${APP_BUNDLE}"
 #xmllint --xpath "/plist/dict/key[contains(text(),'success-message')]::following-sibling" status.xml
